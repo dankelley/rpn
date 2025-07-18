@@ -3,7 +3,7 @@ import sys
 import math
 stack = []
 def d2r(d):
-    return d * 3.141592654 / 180
+    return d * math.pi / 180
 def isop(arg):
     return arg == '+' or arg == '+' or \
     arg == 'x' or arg == "/" or arg == "^" or \
@@ -15,7 +15,9 @@ def checkstack(n):
 argc = len(sys.argv)
 if argc < 2:
     print(f'Usage: {sys.argv[0]} [-d] TOKENS, e.g.')
-    print(f'  {sys.argv[0]} 10 35 + sin # 0.707')
+    print(f'  {sys.argv[0]} 10 35 + # 45')
+    print(f'  {sys.argv[0]} 10 35 + sin # 0.707 = sin(45deg)')
+    print(f'  {sys.argv[0]} 6371 pi x 180 / # 111.19 km per deg lat')
     sys.exit(1)
 debugstack = sys.argv[1] == "-d"
 for i in range(argc - 1 - int(debugstack)):
@@ -43,6 +45,8 @@ for i in range(argc - 1 - int(debugstack)):
         stack[slen - 1] = math.cos(d2r(float(stack[slen-1])))
     elif arg == "tan":
         stack[slen - 1] = math.tan(d2r(float(stack[slen-1])))
+    elif arg == "pi":
+        stack.append(math.pi)
     else:
         stack.append(float(arg))
     if debugstack:
