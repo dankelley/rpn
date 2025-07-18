@@ -50,8 +50,16 @@ rpn 1.0 3.5 + 10 x sin 2 ^ 2 45 cos 2 ^ + # 1.0
 
 ## Plans
 
-1. Add `-h` arg. (Use an arg-parsing scheme for this and also for `-d`).
-2. Add `==` arg (need to decide on number of digits unless python has a fancy way).
-3. Add `log`
-4. Add `roll` (possibly).
-5. Add other things I use a lot on my calculator.
+* [ ] Add `-h` arg. (Use an arg-parsing scheme for this and also for `-d`).
+* [ ] Add `e` token
+* [ ] Add `chs` unary operator
+* [ ] Add `exp` unary operator
+* [ ] Add `log` unary operator
+* [ ] Add `chs` unary operator
+* [ ] Add `recip` or `inv` unary operator
+* [ ] Add `arc` (as prefix to `sin`, `cos` or `tan`)
+* [ ] Add `==` arg (need to decide on number of digits unless python has a
+* [ ] Add `exch` binary operator
+* [ ] Add `digits`
+* [ ] Add other things I use a lot on my calculator.
+* [ ] Make help longer (so folks don't have to go to a webpage)
