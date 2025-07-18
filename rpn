@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+import sys
+import math
+stack = []
+def d2r(d):
+    return d * 3.141592654 / 180
+def isop(arg):
+    return arg == '+' or arg == '+' or \
+    arg == 'x' or arg == "/" or arg == "^" or \
+    arg == "sin" or arg == "cos" or arg == "tan"
+def checkstack(n):
+    if len(stack) < n:
+        print('Stack underflow (need at least 2 items)')
+        sys.exit(1)
+argc = len(sys.argv)
+if argc < 2:
+    print(f'Usage: {sys.argv[0]} [-d] TOKENS, e.g.')
+    print(f'  {sys.argv[0]} 10 35 + sin # 0.707')
+    sys.exit(1)
+debugstack = sys.argv[1] == "-d"
+for i in range(argc - 1 - int(debugstack)):
+    arg = sys.argv[i + 1 + int(debugstack)]
+    slen = len(stack)
+    if arg == "+":
+        checkstack(2)
+        stack[slen - 2] = float(stack[slen-2]) + float(stack[slen-1])
+        stack.pop()
+    elif arg == "-":
+        stack[slen - 2] = float(stack[slen-2]) - float(stack[slen-1])
+        stack.pop()
+    elif arg == "x":
+        stack[slen - 2] = float(stack[slen-2]) * float(stack[slen-1])
+        stack.pop()
+    elif arg == "/":
+        stack[slen - 2] = float(stack[slen-2]) / float(stack[slen-1])
+        stack.pop()
+    elif arg == "^":
+        stack[slen - 2] = pow(float(stack[slen-2]), float(stack[slen-1]))
+        stack.pop()
+    elif arg == "sin":
+        stack[slen - 1] = math.sin(d2r(float(stack[slen-1])))
+    elif arg == "cos":
+        stack[slen - 1] = math.cos(d2r(float(stack[slen-1])))
+    elif arg == "tan":
+        stack[slen - 1] = math.tan(d2r(float(stack[slen-1])))
+    else:
+        stack.append(float(arg))
+    if debugstack:
+        print("%6s" % arg, stack)
+if len(stack) > 1:
+    print("Stack: ", stack)
+else:
+    print(float(stack[0]))
