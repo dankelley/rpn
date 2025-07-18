@@ -40,3 +40,8 @@ rpn 1.0 3.5 + 10 x sin # 0.707
 rpn 1.0 3.5 + 10 x sin 2 ^ 2 45 cos 2 ^ + # 1.0
 ```
 
+# Plans
+
+1. Add `-h` arg. (Use an arg-parsing scheme for this and also for `-d`).
+2. Add `==` arg (need to decide on number of digits unless python has a fancy way).
+3. Add other things I use a lot on my calculator.
