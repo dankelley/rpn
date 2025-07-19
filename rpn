@@ -42,9 +42,11 @@ Built-in values
   e, pi
 
 Unary operators (replace last item on stack):
-  cos, sin, tan
-  acos, asin, atan,
-  exp, ln, log, sqrt
+  cos, sin, tan (in degrees),
+  cosh, sinh, tanh (not in degrees)
+  acos, asin, atan, (in degrees)
+  acosh, asinh, atanh, (not in degrees)
+  exp, ln, log, sqr, sqrt
   chs, exp, inv
 
 Consuming binary operators (replace second-last item on stack, then remove last item on stack):
@@ -113,21 +115,35 @@ for i in range(tokenc):
     elif token == "chs":
         stack[slen - 1] = -(float(stack[slen-1]))
     elif token == "sqrt":
-        stack[slen - 1] = math.sqrt(stack[slen-1])
+        stack[slen - 1] = math.sqrt(float(stack[slen-1]))
+    elif token == "sqr":
+        stack[slen - 1] = float(stack[slen-1]) **2
     elif token == "inv":
         stack[slen - 1] = 1.0 / (float(stack[slen-1]))
     elif token == "sin":
         stack[slen - 1] = math.sin(d2r(float(stack[slen-1])))
+    elif token == "sinh":
+        stack[slen - 1] = math.sinh(float(stack[slen-1]))
     elif token == "asin":
         stack[slen - 1] = r2d(math.asin(float(stack[slen-1])))
+    elif token == "asinh":
+        stack[slen - 1] = math.asinh(float(stack[slen-1]))
     elif token == "cos":
         stack[slen - 1] = math.cos(d2r(float(stack[slen-1])))
+    elif token == "cosh":
+        stack[slen - 1] = math.cosh(float(stack[slen-1]))
     elif token == "acos":
         stack[slen - 1] = r2d(math.acos(float(stack[slen-1])))
+    elif token == "acosh":
+        stack[slen - 1] = math.acosh(float(stack[slen-1]))
     elif token == "tan":
         stack[slen - 1] = math.tan(d2r(float(stack[slen-1])))
+    elif token == "tanh":
+        stack[slen - 1] = math.tanh(float(stack[slen-1]))
     elif token == "atan":
         stack[slen - 1] = r2d(math.atan(float(stack[slen-1])))
+    elif token == "atanh":
+        stack[slen - 1] = math.atanh(float(stack[slen-1]))
     elif token == "exp":
         stack[slen - 1] = math.exp(float(stack[slen-1]))
     elif token == "ln":
