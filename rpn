@@ -51,6 +51,12 @@ Unary operators (replace last item on stack):
 Binary operators (replace second-last item on stack, then remove last item on stack):
   +, -, /, x (or \\*), ^,
   approx, equal, exch
+
+Installation:
+  Visit http://www.github.com/dankelley/rpn and download `rpn`. Then make
+  it executable (with `chmod +x rpn` on unix machines), and put it,
+  or an alias, in your unix "path" (I alias it to `~/bin/,rpn` because
+  I like using a comma at the start of non-standard local commands.)
 """
 parser = argparse.ArgumentParser(prog='rpn',
                                  description='An RPN commandline calculator',
