@@ -10,10 +10,6 @@ def approx(a, b, tolerance=1.490116e-08): # crude version of all.equal in R
         return 1.0
     else:
         return float(diff * b < tolerance)
-def d2r(d): # degrees to radians
-    return d * math.pi / 180
-def r2d(r): # radians to degrees
-    return r * 180 / math.pi
 def checkstack(n, token): # ensure stack has at least n items
     nstack = len(stack)
     if nstack < n:
@@ -41,6 +37,11 @@ examples = """Examples:
   rpn .5 .3 - .3 .1 - - -d 20 # 0.00000000000000002776 (nope!)
   # Definitions
   rpn 100 H def 9.8 G def G H x sqrt # long-wave speed in 100m of water
+
+ Puzzles: guess the meaning of the following
+  rpn 45 sin sqr 45 cos sqr +
+  rpn 1e-7 Eps def 1 Eps + sqr 1 sqr - Eps /
+  # FIXME: let `def` consume whole stack, thus defining a fcn, and redo above
 
 Built-in values
   e, pi
@@ -90,7 +91,8 @@ tokenc = len(tokens)
 if tokenc == 0:
     print("Error: must supply tokens; try -h for help")
     sys.exit(2)
-for i in range(tokenc):
+i = 0
+while i < len(tokens):
     token = tokens[i]
     slen = len(stack)
     if token == "+":
@@ -135,27 +137,27 @@ for i in range(tokenc):
     elif token == "inv":
         stack[slen - 1] = 1.0 / (float(stack[slen-1]))
     elif token == "sin":
-        stack[slen - 1] = math.sin(d2r(float(stack[slen-1])))
+        stack[slen - 1] = math.sin(math.radians(float(stack[slen-1])))
     elif token == "sinh":
         stack[slen - 1] = math.sinh(float(stack[slen-1]))
     elif token == "asin":
-        stack[slen - 1] = r2d(math.asin(float(stack[slen-1])))
+        stack[slen - 1] = math.degrees(math.asin(float(stack[slen-1])))
     elif token == "asinh":
         stack[slen - 1] = math.asinh(float(stack[slen-1]))
     elif token == "cos":
-        stack[slen - 1] = math.cos(d2r(float(stack[slen-1])))
+        stack[slen - 1] = math.cos(math.radians(float(stack[slen-1])))
     elif token == "cosh":
         stack[slen - 1] = math.cosh(float(stack[slen-1]))
     elif token == "acos":
-        stack[slen - 1] = r2d(math.acos(float(stack[slen-1])))
+        stack[slen - 1] = math.degrees(math.acos(float(stack[slen-1])))
     elif token == "acosh":
         stack[slen - 1] = math.acosh(float(stack[slen-1]))
     elif token == "tan":
-        stack[slen - 1] = math.tan(d2r(float(stack[slen-1])))
+        stack[slen - 1] = math.tan(math.radians(float(stack[slen-1])))
     elif token == "tanh":
         stack[slen - 1] = math.tanh(float(stack[slen-1]))
     elif token == "atan":
-        stack[slen - 1] = r2d(math.atan(float(stack[slen-1])))
+        stack[slen - 1] = math.degrees(math.atan(float(stack[slen-1])))
     elif token == "atanh":
         stack[slen - 1] = math.atanh(float(stack[slen-1]))
     elif token == "exp":
@@ -184,6 +186,7 @@ for i in range(tokenc):
         stack.append(token)
     if options.stack:
         print("%6s" % token, stack)
+    i = i + 1
 
 format = f'%.{options.digits}f'
 if len(stack) > 1:
