@@ -3,6 +3,7 @@ import sys
 import math
 import argparse
 stack = []
+dict = {}
 def approx(a, b, tolerance=1.490116e-08): # crude version of all.equal in R
     diff = abs(a - b)
     if diff < tolerance:
@@ -32,11 +33,14 @@ examples = """Examples:
   rpn 10 ln                   # 2.302585 (natural log)
   rpn 10 log                  # 1.000000 (base-10 log)
   rpn 10 2 ^                  # 100.000000
+  # Precise and approximate equality
   rpn .5 .3 - .3 .1 -         # [0.2, 0.19999999999999998] (not equal but ...)
   rpn .5 .3 - .3 .1 - approx  # 1.000000 (approximately equal)
   rpn .5 .3 - .3 .1 - equal   # 0.000000
   rpn .5 .3 - .3 .1 - -       # 0.000000 (hm, isn't that zero?)
   rpn .5 .3 - .3 .1 - - -d 20 # 0.00000000000000002776 (nope!)
+  # Definitions
+  rpn 100 H def 9.8 G def G H x sqrt # long-wave speed in 100m of water
 
 Built-in values
   e, pi
@@ -49,12 +53,22 @@ Unary operators (replace last item on stack):
   exp, ln, log, sqr, sqrt
   chs, exp, inv
 
-Consuming binary operators (replace second-last item on stack, then remove last item on stack):
+Binary operators:
   +, -, /, x, ^,
   approx, equal
 
-Non-consuming binary operators (retain stack length):
+Stack operators:
   exch
+
+Definitional operators:
+  def
+
+Development notes:
+  I am undecided as to whether `def` should save just the item before
+  the name, or everything on the stack.  If the latter, then it could
+  be a step towards defining functions.  Will need to update `slen`
+  though, and maybe a way to force it to execute the stack after
+  that replacement.
 
 Installation:
   Visit http://www.github.com/dankelley/rpn and download `rpn`. Then make
@@ -154,13 +168,27 @@ for i in range(tokenc):
         stack.append(math.pi)
     elif token == "e":
         stack.append(math.e)
+    elif token == "def":
+        checkstack(2, token)
+        if (stack[slen - 1][0].islower()):
+            print(f'cannot "def" to "{stack[slen - 1]}" because it starts with a lower-case letter')
+            sys.exit(1)
+        dict[stack[slen - 1]] = stack[slen - 2]
+        stack.pop()
+        stack.pop()
+        if options.stack:
+            print(dict)
+    elif token in dict:
+        stack.append(dict[token])
     else:
-        stack.append(float(token))
+        stack.append(token)
     if options.stack:
         print("%6s" % token, stack)
 
 format = f'%.{options.digits}f'
 if len(stack) > 1:
     print(stack)
-else:
+elif len(stack) == 1:
     print(format % float(stack[0]))
+if options.stack:
+    print(dict)
