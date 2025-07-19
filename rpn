@@ -87,7 +87,7 @@ for i in range(tokenc):
         checkstack(2, token)
         stack[slen - 2] = float(stack[slen-2]) - float(stack[slen-1])
         stack.pop()
-    elif token == "x" or token == "*":
+    elif token == "x":
         checkstack(2, token)
         stack[slen - 2] = float(stack[slen-2]) * float(stack[slen-1])
         stack.pop()
