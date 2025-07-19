@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import math
+import argparse
 stack = []
 def d2r(d):
     return d * math.pi / 180
@@ -12,16 +13,25 @@ def checkstack(n):
     if len(stack) < n:
         print('Stack underflow (need at least 2 items)')
         sys.exit(1)
-argc = len(sys.argv)
-if argc < 2:
-    print(f'Usage: {sys.argv[0]} [-d] TOKENS, e.g.')
-    print(f'  {sys.argv[0]} 10 35 + # 45')
-    print(f'  {sys.argv[0]} 10 35 + sin # 0.707 = sin(45deg)')
-    print(f'  {sys.argv[0]} 6371 pi x 180 / # 111.19 km per deg lat')
-    sys.exit(1)
-debugstack = sys.argv[1] == "-d"
-for i in range(argc - 1 - int(debugstack)):
-    arg = sys.argv[i + 1 + int(debugstack)]
+parser = argparse.ArgumentParser(prog='rpn',
+                                 description='An RPN commandline calculator',
+                                 epilog='See also www.github.com/kelley/rpn')
+#parser.add_argument('-h', '--help', action='store_true')
+#parser.add_argument('-s', '--show-stack', action='store_true')
+parser.add_argument('-d', '--digits', type=int, default=6, help='number of digits to show')
+#parser.add_argument('-s', '--show_stack', default=False, help='show the stack during processing?')
+parser.add_argument('-s', "--stack", action='store_true', help='show stack during processing')
+options,args = parser.parse_known_args()
+#print("options:")
+#print(options)
+#print("args:")
+#print(args)
+argc = len(args)
+#print(f'stack={options.stack}')
+#print('next is args:')
+#print(args)
+for i in range(argc):
+    arg = args[i]
     slen = len(stack)
     if arg == "+":
         checkstack(2)
@@ -49,7 +59,7 @@ for i in range(argc - 1 - int(debugstack)):
         stack.append(math.pi)
     else:
         stack.append(float(arg))
-    if debugstack:
+    if options.stack:
         print("%6s" % arg, stack)
 if len(stack) > 1:
     print("Stack: ", stack)
