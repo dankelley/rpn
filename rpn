@@ -38,7 +38,8 @@ examples = """Examples:
   # Definitions
   rpn 100 H def 9.8 G def G H x sqrt # long-wave speed in 100m of water
 
- Puzzles: guess the meaning of the following
+ Puzzles: without running rpn, guess the meaning of the following
+  rpn pi 4 / deg sin
   rpn 45 sin sqr 45 cos sqr +
   rpn 1e-7 Eps def 1 Eps + sqr 1 sqr - Eps /
   # FIXME: let `def` consume whole stack, thus defining a fcn, and redo above
@@ -48,8 +49,9 @@ Built-in values
 
 Unary operators (replace last item on stack):
   cos, sin, tan (in degrees),
-  cosh, sinh, tanh (not in degrees)
   acos, asin, atan, (in degrees)
+  deg, rad, # convert to degrees or to radians
+  cosh, sinh, tanh (not in degrees)
   acosh, asinh, atanh, (not in degrees)
   exp, ln, log, sqr, sqrt
   chs, exp, inv
@@ -160,6 +162,10 @@ while i < len(tokens):
         stack[slen - 1] = math.degrees(math.atan(float(stack[slen-1])))
     elif token == "atanh":
         stack[slen - 1] = math.atanh(float(stack[slen-1]))
+    elif token == "deg":
+        stack[slen - 1] = math.degrees(float(stack[slen-1]))
+    elif token == "rad":
+        stack[slen - 1] = math.radians(float(stack[slen-1]))
     elif token == "exp":
         stack[slen - 1] = math.exp(float(stack[slen-1]))
     elif token == "ln":
