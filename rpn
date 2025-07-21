@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-version = "0.0.1"
+version = "0.0.2"
+debug = False
 import sys
 import math
 import argparse
 import json
+import os
+
 stack = []
 dict = {}
 def approx(a, b, tolerance=1.490116e-08): # crude version of all.equal in R
@@ -15,36 +18,31 @@ def approx(a, b, tolerance=1.490116e-08): # crude version of all.equal in R
 def checkstack(n, token): # ensure stack has at least n items
     nstack = len(stack)
     if nstack < n:
-        print(f'The stack only has {nstack} items, but {token} requres at least {n} items')
+        print(f'The stack only has {nstack} items, but {token} requires at least {n} items; next is stack:')
+        print(stack)
         sys.exit(1)
 examples = """Examples:
-  rpn e                       # 2.718282 (Euler's number ...)
-  rpn e -d 10                 # 2.7182818285 (... to 10 digits.)
-  rpn pi                      # 3.141593 (pi is also built-in)
-  rpn 10 35                   # [10.0, 35.0] (two items on stack ...)
-  rpn 10 35 exch              # [35.0, 10.0] (... exchange those items)
-  rpn 10 35 +                 # 45.000000 (addition)
-  rpn 10 2 /                  # 5.000000 (divide second-last stack item by last stack item)
-  rpn 10 2 x                  # 20.000000 (multiplication, preferred style ...)
-  rpn 45 sin                  # 0.707107 (sin, cos, and tan use angle in degrees)
-  rpn 1 asin                  # 90.000000 (asin, acos, and atan return an angle in degrees)
-  rpn 10 ln                   # 2.302585 (natural log)
-  rpn 10 log                  # 1.000000 (base-10 log)
-  rpn 10 2 ^                  # 100.000000
-  # Precise and approximate equality
-  rpn .5 .3 - .3 .1 -         # [0.2, 0.19999999999999998] (not equal but ...)
-  rpn .5 .3 - .3 .1 - approx  # 1.000000 (approximately equal)
-  rpn .5 .3 - .3 .1 - equal   # 0.000000
-  rpn .5 .3 - .3 .1 - -       # 0.000000 (hm, isn't that zero?)
-  rpn .5 .3 - .3 .1 - - -d 20 # 0.00000000000000002776 (nope!)
-  # Definitions
-  rpn 2 H def 9.8 G def G H x sqrt # long-wave speed in 2 m of water
+  rpn e                        # 2.718282 (Euler's number ...)
+  rpn e -d 10 2.7192818 approx  # 2.7182818285 (... to 10 digits.)
+  rpn pi                       # 3.141593 (pi is also built-in)
+  rpn 10 35                    # [10.0, 35.0] (two items on stack ...)
+  rpn 10 35 + 45 APPROX        # 45.000000 (addition)
+  rpn 10 2 / 5 APPROX          # divide second-last stack item by last stack item
+  rpn 10 2 x 20 APPROX         # multiplication, preferred style ...
+  rpn 45 sin 2 sqrt inv APPROX # sin, cos, and tan use angle in degrees
+  rpn 10 35 exch               # [35.0, 10.0] (... exchange those items)
+  rpn 1 asin 90 APPROX         # asin, acos, and atan return an angle in degrees
+  rpn 10 ln                    # natural log
+  rpn 10 log                   # base-10 log
+  rpn 10 2 ^ 100 APPROX        # exponentiation
+# Saving 'def' quantities to a file
+  rpn -l lib.json pi 2 x _tau def
+  rpn -l lib.json _tau 2 / pi APPROX #
 
  Puzzles: without running rpn, guess the meaning of the following
   rpn pi 4 / deg sin
   rpn 45 sin sqr 45 cos sqr +
-  rpn 1e-7 Eps def 1 Eps + sqr 1 sqr - Eps /
-  # FIXME: let `def` consume whole stack, thus defining a fcn, and redo above
+  rpn 1e-7 _eps def 1 _eps + sqr 1 sqr - _eps /
 
 Built-in values
   e, pi
@@ -60,7 +58,7 @@ Unary operators (replace last item on stack):
 
 Binary operators:
   +, -, /, x, ^,
-  approx, equal
+  approx, APPROX, equal, EQUAL
 
 Stack operators:
   exch
@@ -83,17 +81,26 @@ Installation:
 """
 parser = argparse.ArgumentParser(prog='rpn',
                                  description='An RPN commandline calculator',
-                                 usage='rpn [-v] [-h] [-d DIGITS] [-s] tokens',
+                                 usage='rpn [-v] [-h] [-s] [-d DIGITS] [-l FILENAME] tokens',
                                  epilog=examples,
                                  formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-d', '--digits', type=int, default=6, help='number of digits to show in final (singleton) result')
+parser.add_argument('-l', '--library', type=str, help='name of a file to save/retrieve def items')
 parser.add_argument('-s', "--stack", action='store_true', help='show stack during processing')
 parser.add_argument('-v', "--version", action='store_true', help='show version number and then quit')
 parser.add_argument("tokens", nargs="*")
 options,args = parser.parse_known_args()
+
 if options.version:
     print(f'Version {version}')
     sys.exit(0)
+
+if options.library is not None:
+    if os.path.exists(options.library):
+        with open(options.library) as file:
+            dict = json.load(file)
+        #print(f'FIXME: read {len(dict)} "def" items from {options.library}')
+        #print(dict)
 
 tokens = options.tokens
 tokenc = len(tokens)
@@ -104,6 +111,12 @@ i = 0
 while i < len(tokens):
     token = tokens[i]
     slen = len(stack)
+    if i < len(tokens) - 1: # nextoken is used to let "def" redefine symbols
+        nexttoken = tokens[i+1]
+    else:
+        nexttoken = None
+    if debug:
+        print(f'len(tokens): {len(tokens)}, token: {token}, nexttoken: {nexttoken} at start of loop')
     if token == "+":
         checkstack(2, token)
         stack[slen - 2] = float(stack[slen-2]) + float(stack[slen-1])
@@ -124,6 +137,15 @@ while i < len(tokens):
         checkstack(2, token)
         stack[slen - 2] = pow(float(stack[slen-2]), float(stack[slen-1]))
         stack.pop()
+    elif token == "EQUAL":
+        checkstack(2, token)
+        back1 = stack[slen - 1]
+        back2 = stack[slen - 2]
+        if stack[slen - 1] != stack[slen - 2]:
+            print(f"EQUAL test failed on {stack[slen-2]} and {stack[slen-1]}\n")
+            sys.exit(2)
+        stack.pop()
+        stack.pop()
     elif token == "equal":
         checkstack(2, token)
         stack[slen - 2] = float(float(stack[slen-2]) == float(stack[slen-1]))
@@ -131,6 +153,13 @@ while i < len(tokens):
     elif token == "approx":
         checkstack(2, token)
         stack[slen - 2] = float(approx(float(stack[slen-2]), float(stack[slen-1])))
+        stack.pop()
+    elif token == "APPROX":
+        checkstack(2, token)
+        if approx(float(stack[slen-2]), float(stack[slen-1])) != 1.0:
+            print(f"APPROX test failed on {stack[slen-2]} and {stack[slen-1]}\n")
+            sys.exit(2)
+        stack.pop()
         stack.pop()
     elif token == "exch":
         checkstack(2, token)
@@ -184,38 +213,64 @@ while i < len(tokens):
     elif token == "e":
         stack.append(math.e)
     elif token == "def":
+        if (debug):
+            print("got 'def' ... next is stack:")
+            print(stack)
         checkstack(2, token)
-        if (stack[slen - 1][0] != "_"):
-            print(f'cannot define "{stack[slen - 1]}" because it does not start with "_"')
+        name = stack[slen - 1]
+        if (name[0] != "_"):
+            print(f'cannot define "{name}" because it does not start with "_"')
             sys.exit(1)
-        dict[stack[slen - 1]] = stack[slen - 2]
+        if name in dict.keys():
+            if options.library is None:
+                print(f'Redefining "{name}"')
+            else:
+                print(f'Redefining "{name}" in library "{options.library}"')
+        dict[name] = stack[slen - 2]
         stack.pop()
         stack.pop()
         if options.stack:
             print(dict)
-    elif token in dict:
-        stack.append(dict[token])
-    elif token == "save":
-        #print(f"saving dict to {stack[slen-1]}")
-        filename = stack[slen-1]
-        try:
-            with open(filename, "a") as file:
-                json.dump(dict, file, indent=4)
-        except IOError as e:
-            print(f'Cannot save to file: {e}')
-        #print(dict, file=file)
-        #file.close()
-        stack.pop()
+    elif token in dict.keys():
+        if debug:
+            print(f"token {token} is in dict; nexttoken={nexttoken}")
+            print("dict:")
+            print(dict)
+            print("stack:")
+            print(stack)
+        if nexttoken != "def":
+            if debug:
+                print("OK, appending now (FIXME)")
+            stack.append(dict[token])
+        else:
+            stack.append(token)
     else:
         stack.append(token)
     if options.stack:
         print("%6s" % token, stack)
     i = i + 1
 
+#print(dict)
+#print(f'options.library: {options.library}')
+if options.library is not None and len(dict) > 0:
+    # I'm not sure why the next goes to the except clause, but I've
+    # got other fish to fry
+    #    try:
+    #        with open(options.library, "w") as file:
+    #            print(f'Saving dict to file: {e}')
+    #            json.dump(dict, file, indent=4)
+    #    except: # IOError as e:
+    #        print(f'Cannot save dict to file: {options.library}')
+    with open(options.library, "w") as file:
+        json.dump(dict, file, indent=4)
+
 format = f'%.{options.digits}f'
 if len(stack) > 1:
+    #print("next is stack")
     print(stack)
 elif len(stack) == 1:
+    #print("next is stack (singleton)")
     print(format % float(stack[0]))
-if options.stack:
+if options.stack and len(dict) > 0:
     print(dict)
+
