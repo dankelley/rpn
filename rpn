@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+version = "0.0.1"
 import sys
 import math
 import argparse
+import json
 stack = []
 dict = {}
 def approx(a, b, tolerance=1.490116e-08): # crude version of all.equal in R
@@ -36,7 +38,7 @@ examples = """Examples:
   rpn .5 .3 - .3 .1 - -       # 0.000000 (hm, isn't that zero?)
   rpn .5 .3 - .3 .1 - - -d 20 # 0.00000000000000002776 (nope!)
   # Definitions
-  rpn 100 H def 9.8 G def G H x sqrt # long-wave speed in 100m of water
+  rpn 2 H def 9.8 G def G H x sqrt # long-wave speed in 2 m of water
 
  Puzzles: without running rpn, guess the meaning of the following
   rpn pi 4 / deg sin
@@ -81,13 +83,18 @@ Installation:
 """
 parser = argparse.ArgumentParser(prog='rpn',
                                  description='An RPN commandline calculator',
-                                 usage='rpn [-h] [-d DIGITS] [-s] tokens',
+                                 usage='rpn [-v] [-h] [-d DIGITS] [-s] tokens',
                                  epilog=examples,
                                  formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-d', '--digits', type=int, default=6, help='number of digits to show in final (singleton) result')
 parser.add_argument('-s', "--stack", action='store_true', help='show stack during processing')
-parser.add_argument("tokens", nargs="+")
+parser.add_argument('-v', "--version", action='store_true', help='show version number and then quit')
+parser.add_argument("tokens", nargs="*")
 options,args = parser.parse_known_args()
+if options.version:
+    print(f'Version {version}')
+    sys.exit(0)
+
 tokens = options.tokens
 tokenc = len(tokens)
 if tokenc == 0:
@@ -178,8 +185,8 @@ while i < len(tokens):
         stack.append(math.e)
     elif token == "def":
         checkstack(2, token)
-        if (stack[slen - 1][0].islower()):
-            print(f'cannot "def" to "{stack[slen - 1]}" because it starts with a lower-case letter')
+        if (stack[slen - 1][0] != "_"):
+            print(f'cannot define "{stack[slen - 1]}" because it does not start with "_"')
             sys.exit(1)
         dict[stack[slen - 1]] = stack[slen - 2]
         stack.pop()
@@ -188,6 +195,17 @@ while i < len(tokens):
             print(dict)
     elif token in dict:
         stack.append(dict[token])
+    elif token == "save":
+        #print(f"saving dict to {stack[slen-1]}")
+        filename = stack[slen-1]
+        try:
+            with open(filename, "a") as file:
+                json.dump(dict, file, indent=4)
+        except IOError as e:
+            print(f'Cannot save to file: {e}')
+        #print(dict, file=file)
+        #file.close()
+        stack.pop()
     else:
         stack.append(token)
     if options.stack:
