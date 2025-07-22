@@ -20,3 +20,8 @@ rm -f lib.json
 ./rpn 45 sin sqr 45 cos sqr +
 ./rpn 1e-7 _eps def 1 _eps + sqr 1 sqr - _eps /
 
+./rpn -l gravity.json 5.972e24 _Me def 6371e3 _Re def 6.674e-11 _G def
+./rpn -l gravity.json _G _Me x _Re sqr / _g def
+./rpn -l gravity.json -s
+rm -f gravity.json
+
