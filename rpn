@@ -68,15 +68,15 @@ Stack operators:
 Definitional operators:
   def
 
-Development notes:
-  I want to find a way to define functions.  That seems tricky with RPN
-  notation, but could emulate Forth, with prefix notation for this.
-
 Installation:
   Visit http://www.github.com/dankelley/rpn and download `rpn`. Then make
   it executable (with `chmod +x rpn` on unix machines), and put it,
   or an alias, in your unix "path" (I alias it to `~/bin/,rpn` because
   I like using a comma at the start of non-standard local commands.)
+
+More documentation:
+  FIXME: put more information, akin to R vignettes, on the github site.
+
 """
 parser = argparse.ArgumentParser(prog='rpn',
                                  description='An RPN commandline calculator',
@@ -239,12 +239,33 @@ while i < len(tokens):
             print(dict)
             print("stack:")
             print(stack)
-        if nexttoken != "def":
-            if debug:
-                print("OK, appending now (FIXME)")
-            stack.append(dict[token])
-        else:
+        # FIXME: split the token, and append those items
+        if nexttoken == "def":
             stack.append(token)
+        else:
+            print(f"about to insert at i={i}")
+            tmp = dict[token]
+            if type(tmp) is str and " " in tmp:
+                print("before insertion, tokens:")
+                print(tokens)
+                tmp = tmp.split()
+                print(tmp)
+                print(stack)
+                before = tokens[:i]
+                after = tokens[(i+1):]
+                C = before
+                for tmpitem in tmp:
+                    print(f'tmpitem: {tmpitem}')
+                    C.append(tmpitem)
+                print(C)
+                for afteritems in after:
+                    C.append(afteritems)
+                print("after insertion, tokens:")
+                tokens = C
+                i = i - 1
+                print(tokens)
+            else:
+                stack.append(tmp)
     else:
         stack.append(token)
     if options.stack:
