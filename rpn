@@ -243,27 +243,31 @@ while i < len(tokens):
         if nexttoken == "def":
             stack.append(token)
         else:
-            print(f"about to insert at i={i}")
+            if debug:
+                print(f"about to insert at i={i}")
             tmp = dict[token]
             if type(tmp) is str and " " in tmp:
-                print("before insertion, tokens:")
-                print(tokens)
                 tmp = tmp.split()
-                print(tmp)
-                print(stack)
+                if debug:
+                    print(tmp)
+                    print("before insertion, tokens:")
+                    print(tokens)
+                    print(stack)
                 before = tokens[:i]
                 after = tokens[(i+1):]
                 C = before
                 for tmpitem in tmp:
-                    print(f'tmpitem: {tmpitem}')
+                    if debug:
+                        print(f'tmpitem: {tmpitem}')
                     C.append(tmpitem)
-                print(C)
+                #print(C)
                 for afteritems in after:
                     C.append(afteritems)
-                print("after insertion, tokens:")
                 tokens = C
+                if debug:
+                    print("after insertion, tokens:")
+                    print(tokens)
                 i = i - 1
-                print(tokens)
             else:
                 stack.append(tmp)
     else:
