@@ -17,3 +17,7 @@ rpn -h
 
 and examine what it prints.  You'll find brief explanations of the optional
 arguments, as well as some examples.
+
+### Videos
+
+* https://youtu.be/HSpJGPOwwrg demonstration of the creation of a library file, into which a function is saved.
