@@ -24,15 +24,18 @@ arguments, as well as some examples.
 
 ### Suggestions for library entries
 
-This is a sample of my library named `~/dek.json` ...
+Here, for example, is how I created the first entry:
 ```
+
+```
+,rpn -l dek.json '32 - 5 x 9 /' _f2c def
+```
+```
+
+```
+
 {
     "_f2c": "32 - 5 x 9 /",
     "_c2f": "9 x 5 / 32 +"
 }
-```
-
-... and this is how I created that first item:
-```
-,rpn -l dek.json '32 - 5 x 9 /' _f2c def
 ```
