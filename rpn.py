@@ -1,29 +1,7 @@
 #!/usr/bin/env python3
 debug = False
-def rpn(tokens, show_stack = False, library=None, digits=8, help = False):
-    import sys
-    import math
-    import json
-    import os
-
-    version = "0.0.2"
-    debug = False
-    stack = []
-    dict_def = {}
-
-    def approx(a, b, tolerance=1.490116e-08):
-        diff = abs(a - b)
-        return 1.0 if diff < tolerance else float(diff * b < tolerance)
-
-    def checkstack(n, token):
-        nstack = len(stack)
-        if nstack < n:
-            print(f'The stack only has {nstack} items, but {token} requires at least {n} items; next is stack:')
-            print(stack)
-            sys.exit(1)
-
-    if help:
-        print("""Examples:
+def rpn_help():
+  return("""Examples:
   rpn e                        # 2.718282 (Euler's number ...)
   rpn e -d 10 2.7192818 approx  # 2.7182818285 (... to 10 digits.)
   rpn pi                       # 3.141593 (pi is also built-in)
@@ -81,7 +59,32 @@ More documentation:
   FIXME: put more information, akin to R vignettes, on the github site.
 
     """)
-        sys.exit(0)
+
+def rpn(tokens, show_stack = False, library=None, digits=8, help = False):
+    import sys
+    import math
+
+    version = "0.0.2"
+    debug = False
+    stack = []
+    dict_def = {}
+    if library and os.path.exists(library):
+        with open(library) as file:
+            dict_def = json.load(file)
+        if debug:
+            print(f"in rpn(), based on {library}, defined dict_def = {dict_def}")
+
+    def approx(a, b, tolerance=1.490116e-08):
+        diff = abs(a - b)
+        return 1.0 if diff < tolerance else float(diff * b < tolerance)
+
+    def checkstack(n, token):
+        nstack = len(stack)
+        if nstack < n:
+            print(f'The stack only has {nstack} items, but {token} requires at least {n} items; next is stack:')
+            print(stack)
+            sys.exit(1)
+
     i = 0
     while i < len(tokens):
         token = tokens[i]
@@ -178,6 +181,8 @@ More documentation:
             print("%6s" % token, stack)
         i += 1
 
+    if debug:
+        print(f"dict_def={dict_def}")
     if library and dict_def:
         with open(library, "w") as file:
             json.dump(dict_def, file, indent=4)
@@ -193,14 +198,17 @@ More documentation:
 
 if __name__ == "__main__":
     import argparse
+    import os
+    import json
     parser = argparse.ArgumentParser(prog='rpn',
                                      description='An RPN commandline calculator',
                                      usage='rpn [-v] [-h] [-s] [-d DIGITS] [-l FILENAME] [tokens]',
-                                     epilog="FIXME (examples epilog)",
+                                     epilog=rpn_help(),
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-d', '--digits', type=int, default=6, help='number of digits to show in final (singleton) result')
+    #parser.add_argument('-h', '--help', action='store_true', help='DAN DAN DAN')
     parser.add_argument('-l', '--library', type=str, help='name of a file to save/retrieve def items')
-    parser.add_argument('-s', "--stack", action='store_true', help='show stack during processing')
+    parser.add_argument('-s', "--show_stack", action='store_true', help='show stack during processing')
     parser.add_argument('-v', "--version", action='store_true', help='show version number and then quit')
     parser.add_argument("tokens", nargs="*")
     options, args = parser.parse_known_args()
@@ -209,8 +217,8 @@ if __name__ == "__main__":
         print(f'Version {version}')
         sys.exit(0)
 
-    if options.library and os.path.exists(options.library):
-        with open(options.library) as file:
-            dict_def = json.load(file)
-    rpn(options.tokens, show_stack = options.stack, library=options.library, digits=options.digits)
+    if debug:
+        print(options)
+
+    rpn(options.tokens, show_stack = options.show_stack, library = options.library, digits=options.digits)
 
