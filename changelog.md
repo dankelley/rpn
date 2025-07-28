@@ -1,3 +1,7 @@
+# Version 0.0.3
+
+* Allow `rpn()` to be called as a function, e.g. `rpn(["1", "2", "/"])` yields 0.5.
+
 # Version 0.0.2
 
 * Add `dup`.

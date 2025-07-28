@@ -1,31 +1,28 @@
 #!/usr/bin/env python3
 debug = False
+version = "0.0.3"
 def rpn_help():
   return("""Examples:
-  rpn e                        # 2.718282 (Euler's number ...)
-  rpn e -d 10 2.7192818 approx  # 2.7182818285 (... to 10 digits.)
-  rpn pi                       # 3.141593 (pi is also built-in)
-  rpn 10 35                    # [10.0, 35.0] (two items on stack ...)
-  rpn 10 35 + 45 APPROX        # 45.000000 (addition)
-  rpn 10 2 / 5 APPROX          # divide second-last stack item by last stack item
-  rpn 10 2 x 20 APPROX         # multiplication, preferred style ...
-  rpn 45 sin 2 sqrt inv APPROX # sin, cos and tan take angle in degrees
-  rpn 10 35 exch               # [35.0, 10.0] (... exchange those items)
-  rpn 10 35 pop                # 35.0 (... remove last-added item)
-  rpn 1 asin 90 APPROX         # asin, acos and atan return an angle in degrees
-  rpn 10 ln                    # natural log
-  rpn 10 log                   # base-10 log
-  rpn 10 2 ^ 100 APPROX        # exponentiation
+  rpn e                          # Euler's number
+  rpn e -d 10                    # Euler's number, with more digits
+  rpn pi                         # Pi
+  rpn 10 35                      # Place 2 items on stack
+  rpn 10 2 /                     # Equals 5; also try 'x', '+' and '-'
+  rpn 45 sin                     # sin, cos and tan take angle in degrees
+  rpn 1 asin                     # asin, acos and atan return an angle in degrees
+  rpn 10 35 exch                 # [35.0, 10.0] (... exchange those items)
+  rpn 10 35 pop                  # 35.0 (... remove last-added item)
+  rpn 10 ln                      # natural log
+  rpn 10 log                     # base-10 log
+  rpn 10 2 ^                     # exponentiation
+  rpn 2143 22 / 0.25 ^           # Ramanujan formula for Pi to 9 digits
+  rpn 2143 22 / 0.25 ^ pi approx # Check Ramanujan, approximately
+  rpn 2143 22 / 0.25 ^ pi equal  # Check Ramanujan, equally
 
 Saving 'def' quantities to a file
-  rpn -l gravity.json 5.972e24 _Me def 6371e3 _Re def 6.674e-11 _G def
-  rpn -l gravity.json _G _Me x _Re sqr / _g def
-  rpn -l gravity.json -s # shows the built-in dictionary, with these additions
-
-Puzzles: without running rpn, guess the meaning of the following
-  rpn pi 4 / deg sin
-  rpn 45 sin sqr 45 cos sqr +
-  rpn 1e-7 _eps def 1 _eps + sqr 1 sqr - _eps /
+  rpn -l conversions.json '32 - 5 x 9 /' _f2c def
+  rpn -l conversions.json '9 x 5 / 32 +' _c2f def
+  rpn -l conversions.json 20 _c2f _f2c
 
 Built-in values
   e, pi
@@ -38,33 +35,30 @@ Unary operators (replace last item on stack):
   acosh, asinh, atanh, (not in degrees)
   exp, ln, log, sqr, sqrt
   chs, exp, inv
-
 Binary operators:
   +, -, /, x, ^,
   approx, APPROX, equal, EQUAL
-
 Stack operators:
   dup, exch, pop
-
 Definitional operators:
   def
 
+Puzzles: without running rpn, guess the meaning of the following
+  rpn pi 4 / deg sin
+  rpn 45 sin sqr 45 cos sqr +
+  rpn 1e-7 _eps def 1 _eps + sqr 1 sqr - _eps /
+
 Installation:
-  Visit http://www.github.com/dankelley/rpn and download `rpn`. Then make
-  it executable (with `chmod +x rpn` on unix machines), and put it,
+  Visit http://www.github.com/dankelley/rpn and download `rpn.py`. Then make
+  it executable (with `chmod +x rpn.py` on unix machines), and put it,
   or an alias, in your unix "path" (I alias it to `~/bin/,rpn` because
   I like using a comma at the start of non-standard local commands.)
-
-More documentation:
-  FIXME: put more information, akin to R vignettes, on the github site.
-
     """)
 
 def rpn(tokens, show_stack = False, library=None, digits=8, help = False):
     import sys
     import math
 
-    version = "0.0.2"
     debug = False
     stack = []
     dict_def = {}
@@ -138,7 +132,7 @@ def rpn(tokens, show_stack = False, library=None, digits=8, help = False):
             if name in dict_def and options.library:
                 print(f'Redefining "{name}" in library "{options.library}"')
             dict_def[name] = value
-            if options.stack:
+            if options.show_stack:
                 print(dict_def)
         elif token == "chs": unary_op(lambda a: -a)
         elif token == "sqrt": unary_op(math.sqrt)
@@ -200,6 +194,7 @@ if __name__ == "__main__":
     import argparse
     import os
     import json
+    import sys
     parser = argparse.ArgumentParser(prog='rpn',
                                      description='An RPN commandline calculator',
                                      usage='rpn [-v] [-h] [-s] [-d DIGITS] [-l FILENAME] [tokens]',
