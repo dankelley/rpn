@@ -32,6 +32,7 @@ def main():
   rpn 10 2 x 20 APPROX         # multiplication, preferred style ...
   rpn 45 sin 2 sqrt inv APPROX # sin, cos and tan take angle in degrees
   rpn 10 35 exch               # [35.0, 10.0] (... exchange those items)
+  rpn 10 35 pop                # 35.0 (... remove last-added item)
   rpn 1 asin 90 APPROX         # asin, acos and atan return an angle in degrees
   rpn 10 ln                    # natural log
   rpn 10 log                   # base-10 log
@@ -64,7 +65,7 @@ Binary operators:
   approx, APPROX, equal, EQUAL
 
 Stack operators:
-  exch, dup
+  dup, exch, pop
 
 Definitional operators:
   def
@@ -140,6 +141,8 @@ More documentation:
         elif token == "exch":
             checkstack(2, token)
             stack[-1], stack[-2] = stack[-2], stack[-1]
+        elif token == "pop":
+            stack.pop()
         elif token == "dup":
             stack.append(stack[-1])
         elif token == "def":
