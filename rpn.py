@@ -35,6 +35,7 @@ Unary operators (replace last item on stack):
   acosh, asinh, atanh, (not in degrees)
   exp, ln, log, sqr, sqrt
   chs, exp, inv
+  hex, unhex
 Binary operators:
   +, -, /, x, ^,
   approx, APPROX, equal, EQUAL
@@ -135,6 +136,8 @@ def rpn(tokens, show_stack = False, library=None, digits=8, help = False):
             if options.show_stack:
                 print(dict_def)
         elif token == "chs": unary_op(lambda a: -a)
+        elif token == "hex": unary_op(lambda a: format(int(a), '#04x'))
+        elif token == "unhex": stack[slen-1] = float.fromhex(stack[slen-1])
         elif token == "sqrt": unary_op(math.sqrt)
         elif token == "sqr": unary_op(lambda a: a ** 2)
         elif token == "inv": unary_op(lambda a: 1.0 / a)
@@ -183,7 +186,10 @@ def rpn(tokens, show_stack = False, library=None, digits=8, help = False):
 
     fmt = f'%.{digits}f'
     if len(stack) == 1:
-        print(fmt % float(stack[0]))
+        if isinstance(stack[0], str):
+            print(stack[0])
+        else:
+            print(fmt % float(stack[0]))
     elif len(stack) > 1:
         print(stack)
     if show_stack and dict_def:
