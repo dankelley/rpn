@@ -35,10 +35,11 @@ Unary operators (replace last item on stack):
   acosh, asinh, atanh, (not in degrees)
   exp, ln, log, sqr, sqrt
   chs, exp, inv
-  hex, unhex
+  hex, unhex (to and from hexadecimal notation)
 Binary operators:
   +, -, /, x, ^,
   approx, APPROX, equal, EQUAL
+  round (e.g. pi 2 round yields 3.14)
 Stack operators:
   dup, exch, pop
 Definitional operators:
@@ -108,6 +109,7 @@ def rpn(tokens, show_stack = False, library=None, digits=8, help = False):
                 print(f"EQUAL test failed on {stack[-2]} and {stack[-1]}")
                 sys.exit(2)
             stack.pop(); stack.pop()
+        elif token == "round": binary_op(lambda a, b: round(a, int(b)))
         elif token == "equal": binary_op(lambda a, b: float(a == b))
         elif token == "approx": binary_op(lambda a, b: float(approx(a, b)))
         elif token == "APPROX":
