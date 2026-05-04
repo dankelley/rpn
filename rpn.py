@@ -36,7 +36,7 @@ Unary operators (replace last item on stack):
   exp, ln, log, sqr, sqrt
   chs, exp, inv
   hex, unhex (to and from hexadecimal notation; operand must start with 0x)
-  bin, unbin (to and from binary notation; operand must start with h)
+  bin. unbin (to and from binary notation; latter is broken)
 Binary operators:
   +, -, /, x, ^,
   approx, APPROX, equal, EQUAL
@@ -51,6 +51,7 @@ Puzzles: without running rpn, guess the results of the following
   rpn 45 sin sqr 45 cos sqr +
   rpn 1e-7 _eps def 1 _eps + sqr 1 sqr - _eps /
   rpn 0xFF unhex
+  rpn 0xFF unhex bin
 
 Installation:
   Visit http://www.github.com/dankelley/rpn and download `rpn.py`. Then make
