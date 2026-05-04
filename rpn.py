@@ -36,6 +36,7 @@ Unary operators (replace last item on stack):
   exp, ln, log, sqr, sqrt
   chs, exp, inv
   hex, unhex (to and from hexadecimal notation; operand must start with 0x)
+  bin, unbin (to and from binary notation; operand must start with h)
 Binary operators:
   +, -, /, x, ^,
   approx, APPROX, equal, EQUAL
@@ -139,6 +140,8 @@ def rpn(tokens, show_stack = False, library=None, digits=8, help = False):
             if options.show_stack:
                 print(dict_def)
         elif token == "chs": unary_op(lambda a: -a)
+        elif token == "bin": unary_op(lambda a: bin(int(a)))
+        elif token == "unbin": unary_op(lambda a: int(a))
         elif token == "hex": unary_op(lambda a: format(int(a), '#04x'))
         elif token == "unhex": stack[slen-1] = float.fromhex(stack[slen-1])
         elif token == "sqrt": unary_op(math.sqrt)
