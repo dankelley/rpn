@@ -35,7 +35,7 @@ Unary operators (replace last item on stack):
   acosh, asinh, atanh, (not in degrees)
   exp, ln, log, sqr, sqrt
   chs, exp, inv
-  hex, unhex (to and from hexadecimal notation)
+  hex, unhex (to and from hexadecimal notation; operand must start with 0x)
 Binary operators:
   +, -, /, x, ^,
   approx, APPROX, equal, EQUAL
@@ -45,10 +45,11 @@ Stack operators:
 Definitional operators:
   def
 
-Puzzles: without running rpn, guess the meaning of the following
+Puzzles: without running rpn, guess the results of the following
   rpn pi 4 / deg sin
   rpn 45 sin sqr 45 cos sqr +
   rpn 1e-7 _eps def 1 _eps + sqr 1 sqr - _eps /
+  rpn 0xFF unhex
 
 Installation:
   Visit http://www.github.com/dankelley/rpn and download `rpn.py`. Then make
